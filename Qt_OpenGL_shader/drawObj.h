@@ -16,7 +16,10 @@ protected:
     void keyPressEvent(QKeyEvent * event);
 private:
     void initGeometry();
+    void updateGeometry();
+
     QPoint lastPos;
+    int currentFaceNum;
     int xRot;
     int yRot;
     int zRot;

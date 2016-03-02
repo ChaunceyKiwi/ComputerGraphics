@@ -8,7 +8,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent) :
     m_show_full_screen(false)
 {
     setSurfaceType(QWindow::OpenGLSurface);
-    resize(640, 480);
+    resize(800, 600);
 }
 
 OpenGLWindow::~OpenGLWindow()

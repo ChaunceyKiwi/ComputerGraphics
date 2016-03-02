@@ -25,6 +25,7 @@ void PolygonWindow::initialize()
 {
     xRot = yRot = zRot = 0;
     xTrans = yTrans = zTrans = 0;
+    currentFaceNum = 0;
     initGeometry();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepthf(1.0f);
@@ -89,6 +90,12 @@ void PolygonWindow::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Down: yTrans -= 0.1f;break;
         case Qt::Key_O:  zTrans += 0.1f;break;
         case Qt::Key_P: zTrans -= 0.1f;break;
+        case Qt::Key_Space:
+        if(currentFaceNum < maxVert/3){
+          currentFaceNum += 1000;
+          updateGeometry();
+        }
+        break;
     }
     m_rtri += 10.0f * direc;
     QWindow::keyPressEvent(event);
@@ -109,9 +116,42 @@ void PolygonWindow::initGeometry()
     float vert[15000][3];
     int face[30000][3];
     getTriangles(vert,face,numOfVert,numOfFace);
+    currentFaceNum = 1000;
 
     int count = 0;
-    for(int i = 0;i < numOfFace;i++){
+    for(int i = 0;i < currentFaceNum;i++){
+          int ind1 = face[i][0]-1;
+          int ind2 = face[i][1]-1;
+          int ind3 = face[i][2]-1;
+
+          vec4 p1 = vec4(vert[ind1][0],vert[ind1][1],vert[ind1][2],1);
+          vec4 p2 = vec4(vert[ind2][0],vert[ind2][1],vert[ind2][2],1);
+          vec4 p3 = vec4(vert[ind3][0],vert[ind3][1],vert[ind3][2],1);
+
+          gridpoints[count] = p1;
+          gridpoints[count+1] = p2;
+          gridpoints[count+2] = p3;
+          count = count + 3;
+      }
+        // Make all grid lines white
+        for (int i = 0; i < maxVert+1; i++)
+            gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
+
+    glGenBuffers(4, &m_vboIds[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gridpoints), gridpoints, GL_STATIC_DRAW);
+}
+
+void PolygonWindow::updateGeometry()
+{
+    int numOfVert;
+    int numOfFace;
+    float vert[15000][3];
+    int face[30000][3];
+    getTriangles(vert,face,numOfVert,numOfFace);
+
+    int count = 0;
+    for(int i = 0;i < currentFaceNum;i++){
           int ind1 = face[i][0]-1;
           int ind2 = face[i][1]-1;
           int ind3 = face[i][2]-1;
