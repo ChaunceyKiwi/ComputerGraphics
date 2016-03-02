@@ -1,64 +1,15 @@
 #include "drawObj.h"
 #include "include/Angel.h"
 #include "tryhead.h"
-#define maxVert 150000
+#define maxVert 100000
 
 typedef Angel::vec4  color4;
 typedef Angel::vec4  point4;
 
-const int NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
-
-point4 points[NumVertices];
-color4 colors[NumVertices];
-
 vec4 gridpoints[maxVert];
 vec4 gridcolours[maxVert];
 
-// Vertices of a unit cube centered at origin, sides aligned with axes
-point4 vertices[8] = {
-    point4( -0.5, -0.5,  0.5, 1.0 ),
-    point4( -0.5,  0.5,  0.5, 1.0 ),
-    point4(  0.5,  0.5,  0.5, 1.0 ),
-    point4(  0.5, -0.5,  0.5, 1.0 ),
-    point4( -0.5, -0.5, -0.5, 1.0 ),
-    point4( -0.5,  0.5, -0.5, 1.0 ),
-    point4(  0.5,  0.5, -0.5, 1.0 ),
-    point4(  0.5, -0.5, -0.5, 1.0 )
-};
-
-// RGBA olors
-color4 vertex_colors[8] = {
-    color4( 0.0, 0.0, 0.0, 1.0 ),  // black
-    color4( 1.0, 0.0, 0.0, 1.0 ),  // red
-    color4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
-    color4( 0.0, 1.0, 0.0, 1.0 ),  // green
-    color4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-    color4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
-    color4( 1.0, 1.0, 1.0, 1.0 ),  // white
-    color4( 0.0, 1.0, 1.0, 1.0 )   // cyan
-};
-
 int Index = 0;
-
-void quad( int a, int b, int c, int d )
-{
-    colors[Index] = vertex_colors[a]; points[Index] = vertices[a]; Index++;
-    colors[Index] = vertex_colors[b]; points[Index] = vertices[b]; Index++;
-    colors[Index] = vertex_colors[c]; points[Index] = vertices[c]; Index++;
-    colors[Index] = vertex_colors[a]; points[Index] = vertices[a]; Index++;
-    colors[Index] = vertex_colors[c]; points[Index] = vertices[c]; Index++;
-    colors[Index] = vertex_colors[d]; points[Index] = vertices[d]; Index++;
-}
-
-void colorcube()
-{
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
-}
 
 PolygonWindow::PolygonWindow(QWindow *parent) :
     OpenGLWindow(parent), m_program(NULL), m_rtri(0.0f), m_rquad(0.0f)
@@ -72,8 +23,10 @@ PolygonWindow::~PolygonWindow()
 
 void PolygonWindow::initialize()
 {
+    xRot = yRot = zRot = 0;
+    xTrans = yTrans = zTrans = 0;
     initGeometry();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepthf(1.0f);
     glDepthFunc(GL_LEQUAL);
 
@@ -92,8 +45,12 @@ void PolygonWindow::render()
     m_program->bind();
 
     m_modelView.setToIdentity();
-    m_modelView.translate(0.0f, -0.5f, -3.0f);
-    m_modelView.rotate(m_rtri, x_flag, y_flag, z_flag);
+    m_modelView.translate(0.1f+xTrans, -0.5f+yTrans, -1.5f+zTrans);
+    m_modelView.rotate(-180.0f, 1, 0, 0);
+    m_modelView.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
+    m_modelView.rotate(yRot / 16.0f, 0, 1, 0);
+    m_modelView.rotate(zRot / 16.0f, 0, 0, 1);
+
     m_program->setUniformValue("mvpMatrix", m_projection * m_modelView);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     m_program->enableAttributeArray(m_posAttr);
@@ -101,28 +58,48 @@ void PolygonWindow::render()
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
     m_program->enableAttributeArray(m_colAttr);
     m_program->setAttributeBuffer(m_colAttr, GL_FLOAT, 0, 4);
+
+    for (int i = 0; i < maxVert+1; i++)
+        gridcolours[i] = vec4(0.0, 1.0, 1.0, 1.0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gridcolours), gridcolours, GL_STATIC_DRAW);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     glDrawArrays(GL_TRIANGLES, 0, maxVert);
 
+    for (int i = 0; i < maxVert+1; i++)
+        gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gridcolours), gridcolours, GL_STATIC_DRAW);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glDrawArrays(GL_TRIANGLES, 0, maxVert);
+
+    m_program->enableAttributeArray(m_colAttr);
+    m_program->setAttributeBuffer(m_colAttr, GL_FLOAT, 0, 4);
     m_program->release();
 }
 
 void PolygonWindow::keyPressEvent(QKeyEvent *event)
 {
     int direc = 1;
-    x_flag = y_flag = z_flag = 0.0f;
     switch(event->key())
     {
-        case Qt::Key_Q:x_flag =  1.0f;direc = 1;break;
-        case Qt::Key_W:x_flag =  1.0f;direc = -1;break;
-
-        case Qt::Key_A:y_flag =  1.0f;direc = 1;break;
-        case Qt::Key_S:y_flag =  1.0f;direc = -1;break;
-
-        case Qt::Key_Z:z_flag =  1.0f;direc = 1;break;
-        case Qt::Key_X:z_flag =  1.0f;direc = -1;break;
+        case Qt::Key_Right:    xTrans += 0.1f;break;
+        case Qt::Key_Left:  xTrans -= 0.1f;break;
+        case Qt::Key_Up:  yTrans += 0.1f;break;
+        case Qt::Key_Down: yTrans -= 0.1f;break;
+        case Qt::Key_O:  zTrans += 0.1f;break;
+        case Qt::Key_P: zTrans -= 0.1f;break;
     }
     m_rtri += 10.0f * direc;
     QWindow::keyPressEvent(event);
+}
+
+static void qNormalizeAngle(int &angle)
+{
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360 * 16)
+        angle -= 360 * 16;
 }
 
 void PolygonWindow::initGeometry()
@@ -132,7 +109,6 @@ void PolygonWindow::initGeometry()
     float vert[15000][3];
     int face[30000][3];
     getTriangles(vert,face,numOfVert,numOfFace);
-    int i = 14602;
 
     int count = 0;
     for(int i = 0;i < numOfFace;i++){
@@ -151,11 +127,59 @@ void PolygonWindow::initGeometry()
       }
         // Make all grid lines white
         for (int i = 0; i < maxVert+1; i++)
-            gridcolours[i] = vec4(0.0, 1.0, 1.0, 1.0);
+            gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
 
     glGenBuffers(4, &m_vboIds[0]);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(gridpoints), gridpoints, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gridcolours), gridcolours, GL_STATIC_DRAW);
+}
+
+void PolygonWindow::mousePressEvent(QMouseEvent *event)
+{
+    lastPos = event->pos();
+}
+
+void PolygonWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    int dx = event->x() - lastPos.x();
+    int dy = event->y() - lastPos.y();
+
+    if (event->buttons() & Qt::LeftButton) {
+        xRotationChanged(xRot + 8 * dy);
+        yRotationChanged(yRot + 8 * dx);
+    } else if (event->buttons() & Qt::RightButton) {
+        xRotationChanged(xRot + 8 * dy);
+        zRotationChanged(zRot + 8 * dx);
+    }
+    lastPos = event->pos();
+}
+
+void PolygonWindow::xRotationChanged(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != xRot) {
+        xRot = angle;
+        emit xRotationChanged(angle);
+        render();
+    }
+}
+
+void PolygonWindow::yRotationChanged(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != yRot) {
+        yRot = angle;
+        emit yRotationChanged(angle);
+        render();
+    }
+}
+
+void PolygonWindow::zRotationChanged(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != zRot) {
+        zRot = angle;
+        emit zRotationChanged(angle);
+        render();
+    }
 }

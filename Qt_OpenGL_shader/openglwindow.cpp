@@ -147,3 +147,4 @@ void OpenGLWindow::keyPressEvent(QKeyEvent *event)
     }
     QWindow::keyPressEvent(event);
 }
+

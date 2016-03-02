@@ -16,6 +16,14 @@ protected:
     void keyPressEvent(QKeyEvent * event);
 private:
     void initGeometry();
+    QPoint lastPos;
+    int xRot;
+    int yRot;
+    int zRot;
+
+    float xTrans;
+    float yTrans;
+    float zTrans;
 private:
     QOpenGLShaderProgram *m_program;
     GLuint m_colAttr;
@@ -25,6 +33,12 @@ private:
     GLfloat	m_rtri;
     GLfloat	x_flag,y_flag,z_flag;
     GLfloat	m_rquad;
+
+    void xRotationChanged(int angle);
+    void yRotationChanged(int angle);
+    void zRotationChanged(int angle);
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 };
 
 #endif // POLYGONWINDOW_H
