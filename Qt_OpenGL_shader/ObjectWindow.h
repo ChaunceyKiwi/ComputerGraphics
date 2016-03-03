@@ -1,15 +1,15 @@
-#ifndef POLYGONWINDOW_H
-#define POLYGONWINDOW_H
+#ifndef ObjectWindow_H
+#define ObjectWindow_H
 
 #include <QOpenGLShaderProgram>
 #include "openglwindow.h"
 
-class PolygonWindow : public OpenGLWindow
+class ObjectWindow : public OpenGLWindow
 {
     Q_OBJECT
 public:
-    explicit PolygonWindow(QWindow *parent = 0);
-    ~PolygonWindow();
+    explicit ObjectWindow(QWindow *parent = 0);
+    ~ObjectWindow();
 protected:
     void initialize();
     void render();
@@ -35,7 +35,6 @@ private:
     GLuint m_vboIds[4];
     GLfloat	m_rtri;
     GLfloat	x_flag,y_flag,z_flag;
-    GLfloat	m_rquad;
 
     void xRotationChanged(int angle);
     void yRotationChanged(int angle);
@@ -44,4 +43,4 @@ private:
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 };
 
-#endif // POLYGONWINDOW_H
+#endif // ObjectWindow_H

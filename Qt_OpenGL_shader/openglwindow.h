@@ -8,6 +8,11 @@
 #include <QResizeEvent>
 #include <QKeyEvent>
 #include <QMatrix4x4>
+#include <QMenu>
+#include <QAction>
+#include <QMenuBar>
+
+
 
 class OpenGLWindow : public QWindow, protected QOpenGLFunctions
 {
@@ -23,7 +28,6 @@ public slots:
     void renderNow();
 protected:
     bool event(QEvent *event);
-
     void exposeEvent(QExposeEvent *event);
 
     void resizeEvent(QResizeEvent * event);
@@ -40,10 +44,13 @@ protected:
 
     QMatrix4x4 m_modelView;
 private:
+    void createMenus();
     bool m_update_pending;
     bool m_animating;
     QOpenGLContext *m_context;
     bool m_show_full_screen;
+    QMenu *fileMenu;
+    QAction *newAct;
 };
 
 #endif // OPENGLWINDOW_H

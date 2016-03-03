@@ -1,27 +1,27 @@
-#include "drawObj.h"
+#include "ObjectWindow.h"
 #include "include/Angel.h"
-#include "tryhead.h"
+#include "getData.h"
 #define maxVert 100000
 
 typedef Angel::vec4  color4;
 typedef Angel::vec4  point4;
 
-vec4 gridpoints[maxVert];
-vec4 gridcolours[maxVert];
+vec4 objPoints[maxVert];
+vec4 objColors[maxVert];
 
 int Index = 0;
 
-PolygonWindow::PolygonWindow(QWindow *parent) :
-    OpenGLWindow(parent), m_program(NULL), m_rtri(0.0f), m_rquad(0.0f)
+ObjectWindow::ObjectWindow(QWindow *parent) :
+    OpenGLWindow(parent), m_program(NULL), m_rtri(0.0f)
 {
 }
 
-PolygonWindow::~PolygonWindow()
+ObjectWindow::~ObjectWindow()
 {
     glDeleteBuffers(4, &m_vboIds[0]);
 }
 
-void PolygonWindow::initialize()
+void ObjectWindow::initialize()
 {
     xRot = yRot = zRot = 0;
     xTrans = yTrans = zTrans = 0;
@@ -40,7 +40,7 @@ void PolygonWindow::initialize()
     glEnable(GL_CULL_FACE);
 }
 
-void PolygonWindow::render()
+void ObjectWindow::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_program->bind();
@@ -61,16 +61,16 @@ void PolygonWindow::render()
     m_program->setAttributeBuffer(m_colAttr, GL_FLOAT, 0, 4);
 
     for (int i = 0; i < maxVert+1; i++)
-        gridcolours[i] = vec4(0.0, 1.0, 1.0, 1.0);
+        objColors[i] = vec4(0.0, 1.0, 1.0, 1.0);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gridcolours), gridcolours, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(objColors), objColors, GL_STATIC_DRAW);
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     glDrawArrays(GL_TRIANGLES, 0, maxVert);
 
     for (int i = 0; i < maxVert+1; i++)
-        gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
+        objColors[i] = vec4(0.0, 0.0, 1.0, 1.0);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gridcolours), gridcolours, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(objColors), objColors, GL_STATIC_DRAW);
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, maxVert);
 
@@ -79,17 +79,17 @@ void PolygonWindow::render()
     m_program->release();
 }
 
-void PolygonWindow::keyPressEvent(QKeyEvent *event)
+void ObjectWindow::keyPressEvent(QKeyEvent *event)
 {
     int direc = 1;
     switch(event->key())
     {
-        case Qt::Key_Right:    xTrans += 0.1f;break;
+        case Qt::Key_Right: xTrans += 0.1f;break;
         case Qt::Key_Left:  xTrans -= 0.1f;break;
-        case Qt::Key_Up:  yTrans += 0.1f;break;
-        case Qt::Key_Down: yTrans -= 0.1f;break;
-        case Qt::Key_O:  zTrans += 0.1f;break;
-        case Qt::Key_P: zTrans -= 0.1f;break;
+        case Qt::Key_Up:    yTrans += 0.1f;break;
+        case Qt::Key_Down:  yTrans -= 0.1f;break;
+        case Qt::Key_O:     zTrans += 0.1f;break;
+        case Qt::Key_P:     zTrans -= 0.1f;break;
         case Qt::Key_Space:
         if(currentFaceNum < maxVert/3){
           currentFaceNum += 1000;
@@ -109,7 +109,7 @@ static void qNormalizeAngle(int &angle)
         angle -= 360 * 16;
 }
 
-void PolygonWindow::initGeometry()
+void ObjectWindow::initGeometry()
 {
     int numOfVert;
     int numOfFace;
@@ -128,21 +128,21 @@ void PolygonWindow::initGeometry()
           vec4 p2 = vec4(vert[ind2][0],vert[ind2][1],vert[ind2][2],1);
           vec4 p3 = vec4(vert[ind3][0],vert[ind3][1],vert[ind3][2],1);
 
-          gridpoints[count] = p1;
-          gridpoints[count+1] = p2;
-          gridpoints[count+2] = p3;
+          objPoints[count] = p1;
+          objPoints[count+1] = p2;
+          objPoints[count+2] = p3;
           count = count + 3;
       }
-        // Make all grid lines white
-        for (int i = 0; i < maxVert+1; i++)
-            gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
+    // Make all grid lines white
+    for (int i = 0; i < maxVert+1; i++)
+          objColors[i] = vec4(0.0, 0.0, 1.0, 1.0);
 
     glGenBuffers(4, &m_vboIds[0]);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gridpoints), gridpoints, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(objPoints), objPoints, GL_STATIC_DRAW);
 }
 
-void PolygonWindow::updateGeometry()
+void ObjectWindow::updateGeometry()
 {
     int numOfVert;
     int numOfFace;
@@ -160,26 +160,26 @@ void PolygonWindow::updateGeometry()
           vec4 p2 = vec4(vert[ind2][0],vert[ind2][1],vert[ind2][2],1);
           vec4 p3 = vec4(vert[ind3][0],vert[ind3][1],vert[ind3][2],1);
 
-          gridpoints[count] = p1;
-          gridpoints[count+1] = p2;
-          gridpoints[count+2] = p3;
+          objPoints[count] = p1;
+          objPoints[count+1] = p2;
+          objPoints[count+2] = p3;
           count = count + 3;
       }
         // Make all grid lines white
         for (int i = 0; i < maxVert+1; i++)
-            gridcolours[i] = vec4(0.0, 0.0, 1.0, 1.0);
+            objColors[i] = vec4(0.0, 0.0, 1.0, 1.0);
 
     glGenBuffers(4, &m_vboIds[0]);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gridpoints), gridpoints, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(objPoints), objPoints, GL_STATIC_DRAW);
 }
 
-void PolygonWindow::mousePressEvent(QMouseEvent *event)
+void ObjectWindow::mousePressEvent(QMouseEvent *event)
 {
     lastPos = event->pos();
 }
 
-void PolygonWindow::mouseMoveEvent(QMouseEvent *event)
+void ObjectWindow::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
@@ -194,7 +194,7 @@ void PolygonWindow::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-void PolygonWindow::xRotationChanged(int angle)
+void ObjectWindow::xRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != xRot) {
@@ -204,7 +204,7 @@ void PolygonWindow::xRotationChanged(int angle)
     }
 }
 
-void PolygonWindow::yRotationChanged(int angle)
+void ObjectWindow::yRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != yRot) {
@@ -214,7 +214,7 @@ void PolygonWindow::yRotationChanged(int angle)
     }
 }
 
-void PolygonWindow::zRotationChanged(int angle)
+void ObjectWindow::zRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != zRot) {

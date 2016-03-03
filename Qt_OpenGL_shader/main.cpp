@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <QSurfaceFormat>
-#include "drawObj.h"
+#include "ObjectWindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat format;
     format.setSamples(5);
 
-    PolygonWindow window;
+    ObjectWindow window;
     window.setFormat(format);
     window.show();
     window.setAnimating(true);

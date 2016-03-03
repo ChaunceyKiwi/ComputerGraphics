@@ -14,16 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         openglwindow.cpp \
-    drawObj.cpp \
-    include/InitShader.cpp
+    include/InitShader.cpp \
+    ObjectWindow.cpp
 
 HEADERS  += openglwindow.h \
-    drawObj.h \
     include/Angel.h \
     include/CheckError.h \
     include/mat.h \
     include/vec.h \
-    tryhead.h
+    getData.h \
+    ObjectWindow.h
 
 RESOURCES += \
     src.qrc

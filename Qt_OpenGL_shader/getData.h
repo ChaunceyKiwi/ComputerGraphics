@@ -54,6 +54,4 @@ void getTriangles(float vert[15000][3],int face[30000][3], int &numOfVert, int &
         face[i][1] = atoi(lineSplit[2]);
         face[i][2] = atoi(lineSplit[3]);
     }
-
-//    numOfFace = 10000;
 }
