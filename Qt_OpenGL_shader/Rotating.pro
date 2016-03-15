@@ -26,8 +26,9 @@ HEADERS  += openglwindow.h \
     getData.h \
     ObjectWindow.h \
     videoplayer.h \
-    mythread.h \
-    videothread.h
+    videothread.h \
+    threadGetTriangle.h \
+    threadDraw.h
 
 RESOURCES += \
     src.qrc

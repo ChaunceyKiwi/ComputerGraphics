@@ -1,13 +1,12 @@
 #include <QApplication>
 #include "ObjectWindow.h"
 #include "videoplayer.h"
-#include "mythread.h"
+#include "threadGetTriangle.h"
+#include "threadDraw.h"
 #include "videothread.h"
-
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
-
 
 int numOfVert;
 int numOfFace;
@@ -18,12 +17,15 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-//    MediaThread mediaThread;
-//    mediaThread.start();
+    ThreadGetTriangle threadGetTriangle; //thread to get data
+    threadGetTriangle.start();
+    //threadGetTriangle.input(vector<Triangle>& vec_tri);
 
-    MyThread myThread;
-    myThread.start();
+    ThreadDraw threadDraw; //thread to draw object
+    threadDraw.start();
 
+    MediaThread mediaThread;
+    mediaThread.start();
 //    QGraphicsScene scene;
 //    QGraphicsView view(&scene);
 //    QGraphicsPixmapItem item(QPixmap("/Users/KiwiDc/Desktop/nice.png"));

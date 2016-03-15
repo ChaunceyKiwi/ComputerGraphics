@@ -1,18 +1,15 @@
 #include <QtCore>
 #include <QDebug>
-#include "getData.h"
 
 extern int numOfVert;
 extern int numOfFace;
 extern float vert[15000][3];
 extern int face[30000][3];
-int num = 1;
 
-
-class MyThread : public QThread
+class ThreadDraw : public QThread
 {
 public:
-    MyThread();
+    ThreadDraw();
     QSurfaceFormat format;
     ObjectWindow window;
 
@@ -20,7 +17,7 @@ public:
     QString name;
 };
 
-MyThread::MyThread()
+ThreadDraw::ThreadDraw()
 {
     format.setSamples(5);
     window.setFormat(format);
@@ -28,12 +25,7 @@ MyThread::MyThread()
     window.setAnimating(true);
 }
 
-void MyThread::run()
+void ThreadDraw::run()
 {
-    while(1){
-        sleep(1);
-        getTriangles(vert,face,numOfVert,numOfFace,num);
-        num += 1000;
-//        cout<<"!!"<<num<<endl;
-    }
+
 }
