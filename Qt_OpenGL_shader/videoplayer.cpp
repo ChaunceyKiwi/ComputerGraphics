@@ -60,8 +60,7 @@ VideoPlayer::VideoPlayer(QWidget *parent)
     playButton->setEnabled(false);
     playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
-    connect(playButton, SIGNAL(clicked()),
-            this, SLOT(play()));
+    connect(playButton, SIGNAL(clicked()),this, SLOT(play()));
 
     positionSlider = new QSlider(Qt::Horizontal);
     positionSlider->setRange(0, 0);

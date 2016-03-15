@@ -1,6 +1,5 @@
 #include "ObjectWindow.h"
 #include "include/Angel.h"
-#include "getData.h"
 #define maxVert 100000
 
 typedef Angel::vec4  color4;
@@ -9,7 +8,10 @@ typedef Angel::vec4  point4;
 vec4 objPoints[maxVert];
 vec4 objColors[maxVert];
 
-int Index = 0;
+extern int numOfVert;
+extern int numOfFace;
+extern float vert[15000][3];
+extern int face[30000][3];
 
 ObjectWindow::ObjectWindow(QWindow *parent) :
     OpenGLWindow(parent), m_program(NULL), m_rtri(0.0f)
@@ -42,6 +44,7 @@ void ObjectWindow::initialize()
 
 void ObjectWindow::render()
 {
+    updateGeometry();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_program->bind();
 
@@ -111,15 +114,11 @@ static void qNormalizeAngle(int &angle)
 
 void ObjectWindow::initGeometry()
 {
-    int numOfVert;
-    int numOfFace;
-    float vert[15000][3];
-    int face[30000][3];
-    getTriangles(vert,face,numOfVert,numOfFace);
-    currentFaceNum = 1000;
+//    getTriangles(vert,face,numOfVert,numOfFace);
+//    currentFaceNum = 1000;
 
     int count = 0;
-    for(int i = 0;i < currentFaceNum;i++){
+    for(int i = 0;i < numOfFace;i++){
           int ind1 = face[i][0]-1;
           int ind2 = face[i][1]-1;
           int ind3 = face[i][2]-1;
@@ -144,14 +143,8 @@ void ObjectWindow::initGeometry()
 
 void ObjectWindow::updateGeometry()
 {
-    int numOfVert;
-    int numOfFace;
-    float vert[15000][3];
-    int face[30000][3];
-    getTriangles(vert,face,numOfVert,numOfFace);
-
     int count = 0;
-    for(int i = 0;i < currentFaceNum;i++){
+    for(int i = 0;i < numOfFace;i++){
           int ind1 = face[i][0]-1;
           int ind2 = face[i][1]-1;
           int ind3 = face[i][2]-1;

@@ -24,7 +24,7 @@ void divideStringBySpace(char* origin,char derivative[4][10]){
     derivative[j][k+1] = '\0';
 }
 
-void getTriangles(float vert[15000][3],int face[30000][3], int &numOfVert, int &numOfFace)
+void getTriangles(float vert[15000][3],int face[30000][3], int &numOfVert, int &numOfFace, int num)
 {
     string line;
     char line_[90];
@@ -46,7 +46,7 @@ void getTriangles(float vert[15000][3],int face[30000][3], int &numOfVert, int &
         vert[i][2] = atof(lineSplit[3]);
     }
 
-    for (int i = 0;i < numOfFace;i++){
+    for (int i = 0;i < num;i++){
         getline(input,line);
         strcpy(line_, line.c_str());
         divideStringBySpace(line_, lineSplit);
