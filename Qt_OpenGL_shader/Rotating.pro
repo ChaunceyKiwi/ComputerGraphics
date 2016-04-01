@@ -16,7 +16,8 @@ SOURCES += main.cpp\
         openglwindow.cpp \
     include/InitShader.cpp \
     ObjectWindow.cpp \
-    videoplayer.cpp
+    videoplayer.cpp \
+    triangle.cpp
 
 HEADERS  += openglwindow.h \
     include/Angel.h \
@@ -28,7 +29,9 @@ HEADERS  += openglwindow.h \
     videoplayer.h \
     videothread.h \
     threadGetTriangle.h \
-    threadDraw.h
+    threadDraw.h \
+    include/triangle.h \
+    triangle.h
 
 RESOURCES += \
     src.qrc

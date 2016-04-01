@@ -8,7 +8,6 @@ extern float vert[15000][3];
 extern int face[30000][3];
 int num = 1;
 
-
 class ThreadGetTriangle : public QThread
 {
 public:
