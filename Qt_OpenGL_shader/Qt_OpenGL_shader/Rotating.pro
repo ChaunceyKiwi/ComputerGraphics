@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia multimediawidgets
+QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 target.path = /home/pi/NeHe_OpenGL_Qt5
@@ -14,24 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         openglwindow.cpp \
-    include/InitShader.cpp \
-    ObjectWindow.cpp \
-    videoplayer.cpp \
-    triangle.cpp
+        objectWindow.cpp
 
 HEADERS  += openglwindow.h \
-    include/Angel.h \
-    include/CheckError.h \
-    include/mat.h \
-    include/vec.h \
-    getData.h \
-    ObjectWindow.h \
-    videoplayer.h \
+    vec.h \
     videothread.h \
     threadGetTriangle.h \
     threadDraw.h \
-    include/triangle.h \
-    triangle.h
+    triangle.h \
+    objectWindow.h
 
 RESOURCES += \
     src.qrc

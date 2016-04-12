@@ -1,10 +1,8 @@
 #include <QtCore>
 #include <QDebug>
+#include "objectWindow.h"
 
-extern int numOfVert;
-extern int numOfFace;
-extern float vert[15000][3];
-extern int face[30000][3];
+extern list<Triangle> face;
 
 class ThreadDraw : public QThread
 {
@@ -12,9 +10,6 @@ public:
     ThreadDraw();
     QSurfaceFormat format;
     ObjectWindow window;
-
-    void run();
-    QString name;
 };
 
 ThreadDraw::ThreadDraw()
@@ -23,9 +18,4 @@ ThreadDraw::ThreadDraw()
     window.setFormat(format);
     window.show();
     window.setAnimating(true);
-}
-
-void ThreadDraw::run()
-{
-
 }
