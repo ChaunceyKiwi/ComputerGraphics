@@ -72,6 +72,7 @@ void ObjectWindow::render()
 
     for (int i = 0; i < maxVert+1; i++)
         objColors[i] = vec4(0.0, 0.0, 1.0, 1.0);
+
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(objColors), objColors, GL_STATIC_DRAW);
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
