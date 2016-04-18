@@ -166,7 +166,6 @@ void ObjectWindow::wheelEvent(QWheelEvent *event)
         scaleValue += 0.1;
     else
         scaleValue -= 0.1;
-    render();
 }
 
 void ObjectWindow::mouseMoveEvent(QMouseEvent *event)
@@ -182,7 +181,6 @@ void ObjectWindow::mouseMoveEvent(QMouseEvent *event)
     if(event->buttons() & Qt::LeftButton){
         xTrans += dx*0.001;
         yTrans -= dy*0.001;
-        render();
     }
 
     lastPos = event->pos();
@@ -194,7 +192,6 @@ void ObjectWindow::xRotationChanged(int angle)
     if (angle != xRot) {
         xRot = angle;
         emit xRotationChanged(angle);
-        render();
     }
 }
 
@@ -204,7 +201,6 @@ void ObjectWindow::yRotationChanged(int angle)
     if (angle != yRot) {
         yRot = angle;
         emit yRotationChanged(angle);
-        render();
     }
 }
 
@@ -214,6 +210,5 @@ void ObjectWindow::zRotationChanged(int angle)
     if (angle != zRot) {
         zRot = angle;
         emit zRotationChanged(angle);
-        render();
     }
 }

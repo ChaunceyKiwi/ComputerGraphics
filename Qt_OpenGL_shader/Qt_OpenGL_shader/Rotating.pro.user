@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.6.0, 2016-04-12T13:34:41. -->
+<!-- Written by QtCreator 3.6.0, 2016-04-18T14:46:10. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -301,8 +301,8 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Rotating</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/KiwiDc/Desktop/latest/Qt_OpenGL_shader/Rotating.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Rotating2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/KiwiDc/WorkSpace/Hit/ComputerGraphics/Qt_OpenGL_shader/Qt_OpenGL_shader/Rotating.pro</value>
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Rotating.pro</value>
