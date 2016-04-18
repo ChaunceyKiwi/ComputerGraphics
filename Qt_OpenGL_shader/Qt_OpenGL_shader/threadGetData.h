@@ -4,32 +4,57 @@
 #include <string>
 #include <fstream>
 #include "triangle.h"
+#include "vertex.h"
+
 
 void divideStringBySpace(char* origin,char derivative[4][10]);
 extern list<Triangle> face;
+extern list<Vertex> pointsDataList;
+extern list<Vertex> linesDataList;
 
-
-class ThreadGetTriangle : public QThread
+class ThreadGetData : public QThread
 {
 public:
-    ThreadGetTriangle();
-    void input(list<Triangle> triList);
+    ThreadGetData();
+    void inputFaces(list<Triangle> triList);
+    void inputLines(list<Vertex> pointList);
+    void inputPoints(list<Vertex> pointList);
     void inputFromSMF(string address);
 };
 
-ThreadGetTriangle::ThreadGetTriangle(){
+ThreadGetData::ThreadGetData(){
 }
 
-void ThreadGetTriangle::input(list<Triangle> triList){
+// Input data of faces
+void ThreadGetData::inputFaces(list<Triangle> triList){
 
     list<Triangle>::iterator tri;
 
-    for (tri=triList.begin(); tri!=triList.end(); tri++){
+    for (tri = triList.begin(); tri != triList.end(); tri++){
             face.push_back(*tri);
     }
 }
 
-void ThreadGetTriangle::inputFromSMF(string address){
+// Input data of lines
+void ThreadGetData::inputLines(list<Vertex> pointList){
+    list<Vertex>::iterator point;
+
+    for(point = pointList.begin(); point != pointList.end(); point++){
+        linesDataList.push_back(*point);
+    }
+}
+
+// Input data of points
+void ThreadGetData::inputPoints(list<Vertex> pointList){
+    list<Vertex>::iterator point;
+
+    for(point = pointList.begin(); point != pointList.end(); point++){
+        pointsDataList.push_back(*point);
+    }
+}
+
+// Input data from .smf file
+void ThreadGetData::inputFromSMF(string address){
        string line;
        char line_[90];
        char lineSplit[4][10];
@@ -42,6 +67,7 @@ void ThreadGetTriangle::inputFromSMF(string address){
        int numOfVert = atoi(lineSplit[1]);
        int numOfFace = atoi(lineSplit[2]);
 
+       // get vertices
        for (int i = 0;i < numOfVert;i++){
            getline(input,line);
            strcpy(line_, line.c_str());
@@ -51,6 +77,7 @@ void ThreadGetTriangle::inputFromSMF(string address){
            vert[i][2] = atof(lineSplit[3]);
        }
 
+       // get all faces
        for (int i = 0;i < numOfFace;i++){
            getline(input,line);
            strcpy(line_, line.c_str());
@@ -58,7 +85,6 @@ void ThreadGetTriangle::inputFromSMF(string address){
            int index0 = atoi(lineSplit[1]) - 1;
            int index1 = atoi(lineSplit[2]) - 1;
            int index2 = atoi(lineSplit[3]) - 1;
-
 
            vec4 p1 = vec4(vert[index0][0],vert[index0][1],vert[index0][2],1.0);
            vec4 p2 = vec4(vert[index1][0],vert[index1][1],vert[index1][2],1.0);
@@ -68,6 +94,7 @@ void ThreadGetTriangle::inputFromSMF(string address){
        }
 }
 
+// Function to handle with strings
 void divideStringBySpace(char* origin,char derivative[4][10]){
     int i = 0,j = 0,k = 0;
 
