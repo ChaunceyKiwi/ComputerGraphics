@@ -6,21 +6,22 @@
 
 QT       += core gui
 
-TARGET = BasicRendering
+TARGET = ModelShow
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    window.cpp
+    openglwindow.cpp \
+    objectwindow.cpp
 
 HEADERS += \
-    window.h \
     vertex.h \
     triangle.h \
     vec.h \
     threadGetData.h \
-    threadDraw.h
+    openglwindow.h \
+    objectwindow.h
 
 RESOURCES += \
     resources.qrc

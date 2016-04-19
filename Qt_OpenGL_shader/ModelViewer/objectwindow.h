@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef ObjectWindow_H
+#define ObjectWindow_H
 
 #include <QOpenGLWindow>
 #include <QOpenGLFunctions>
@@ -11,30 +11,31 @@
 #include <QResizeEvent>
 #include <QKeyEvent>
 #include <QMatrix4x4>
+#include <QOpenGLShaderProgram>
 
 #include "triangle.h"
+#include "openglwindow.h"
 #define maxVert 100000
 
 class QOpenGLShaderProgram;
 extern list<Triangle> face;
 
-class Window : public QOpenGLWindow, protected QOpenGLFunctions
+class ObjectWindow : public OpenGLWindow
 {
   Q_OBJECT
 
-// OpenGL Events
 public:
-  void initializeGL();
-  void resizeGL(int width, int height);
-  void paintGL();
-  void updateGeometry();
+    explicit ObjectWindow(QWindow *parent = 0);
+    ~ObjectWindow();
 
-protected slots:
-  void teardownGL();
-  void update();
+protected:
+    void initialize();
+    void render();
+    void keyPressEvent(QKeyEvent * event);
 
 private:
   // OpenGL State Information
+  // face1 for line, face2 for fill
   QOpenGLBuffer facesVBO1,facesVBO2,pointsVBO,linesVBO;
   QOpenGLVertexArrayObject facesVAO1,facesVAO2,pointsVAO,linesVAO;
   QOpenGLShaderProgram *m_program;
@@ -45,6 +46,7 @@ private:
   int xRot, yRot, zRot;
 
   // draw line or face or both
+  // 1: lines, 2: faces, 3: lines and face
   int shadeMode;
 
   // used for translation
@@ -54,7 +56,6 @@ private:
   vec4 objColors[maxVert];
   vec4 objNormal[maxVert];
 
-
   //used for scale
   float scaleValue;
 
@@ -62,13 +63,13 @@ private:
 
   int MVPmatrix;
 
+  void updateGeometry();
   void xRotationChanged(int angle);
   void yRotationChanged(int angle);
   void zRotationChanged(int angle);
   void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
   void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
   void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
-  void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 };
 

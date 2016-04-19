@@ -1,8 +1,11 @@
-#include "window.h"
+#include "objectwindow.h"
 #include <QDebug>
 #include <QString>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions>
 #include "vertex.h"
+#include <QMatrix4x4>
+
 
 static Vertex facesDataLINE[maxVert];
 static Vertex facesDataFILL[maxVert];
@@ -11,18 +14,43 @@ Vertex pointsData[100];
 Vertex linesData[100];
 
 extern list<Vertex> pointsDataList;
-extern list<Vertex> linesDataList;
+extern list<Vertex> linesDataList; 
 
-void Window::initializeGL()
+ObjectWindow::ObjectWindow(QWindow *parent) :
+    OpenGLWindow(parent), m_program(NULL)
 {
+}
+
+ObjectWindow::~ObjectWindow()
+{
+    // Actually destroy our OpenGL information
+      facesVAO1.destroy();
+      facesVBO1.destroy();
+
+      facesVAO2.destroy();
+      facesVBO2.destroy();
+
+      linesVAO.destroy();
+      linesVBO.destroy();
+
+      pointsVAO.destroy();
+      pointsVBO.destroy();
+      delete m_program;
+}
+
+void ObjectWindow::initialize()
+{
+  glEnable(GL_CULL_FACE);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
   scaleValue = 1;
-  shadeMode = 3; // show both line and face
+  shadeMode = 2; // show both line and face
   updateGeometry();
 
   // Initialize OpenGL Backend
   initializeOpenGLFunctions();
-  connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
-  connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 
   // Set global information
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -47,8 +75,11 @@ void Window::initializeGL()
     facesVAO1.bind();
     m_program->enableAttributeArray(0);
     m_program->enableAttributeArray(1);
+    m_program->enableAttributeArray(2);
+
     m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
     m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+    m_program->setAttributeBuffer(2, GL_FLOAT, Vertex::normalOffset(), Vertex::NormalTupleSize, Vertex::stride());
 
     // Release (unbind) all
     facesVAO1.release();
@@ -68,8 +99,11 @@ void Window::initializeGL()
     facesVAO2.bind();
     m_program->enableAttributeArray(0);
     m_program->enableAttributeArray(1);
+    m_program->enableAttributeArray(2);
+
     m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
     m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+    m_program->setAttributeBuffer(2, GL_FLOAT, Vertex::normalOffset(), Vertex::NormalTupleSize, Vertex::stride());
 
     // Release (unbind) all
     facesVAO2.release();
@@ -89,8 +123,11 @@ void Window::initializeGL()
     pointsVAO.bind();
     m_program->enableAttributeArray(0);
     m_program->enableAttributeArray(1);
+    m_program->enableAttributeArray(2);
+
     m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
     m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+    m_program->setAttributeBuffer(2, GL_FLOAT, Vertex::normalOffset(), Vertex::NormalTupleSize, Vertex::stride());
 
     // Release (unbind) all
     pointsVAO.release();
@@ -110,8 +147,11 @@ void Window::initializeGL()
     linesVAO.bind();
     m_program->enableAttributeArray(0);
     m_program->enableAttributeArray(1);
+    m_program->enableAttributeArray(2);
+
     m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
     m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+    m_program->setAttributeBuffer(2, GL_FLOAT, Vertex::normalOffset(), Vertex::NormalTupleSize, Vertex::stride());
 
     // Release (unbind) all
     linesVAO.release();
@@ -119,11 +159,9 @@ void Window::initializeGL()
   }
 
     m_program->release();
-
 }
 
-// update geomerty information here
-void Window::updateGeometry()
+void ObjectWindow::updateGeometry()
 {
     int count = 0;
     list<Triangle>::iterator tri;
@@ -133,50 +171,46 @@ void Window::updateGeometry()
         vec4 p1, p2, p3;
         tri->getVertice(p1,p2,p3);
 
-        vec4 temp = cross(p1 - p2,p2 - p3);
+        vec4 temp_vec4 = cross(p1 - p2,p2 - p3);
 
-        while(length(temp) < 0.01)
+        QVector3D temp = QVector3D(temp_vec4.x,temp_vec4.y,temp_vec4.z);
+        QVector3D zeroVec = QVector3D(0.0, 0.0, 0.0);
+
+        while(temp.length() < 0.01){
             temp = temp * 10;
+        }
 
-        objNormal[count] = temp;
-        objNormal[count+1] = temp;
-        objNormal[count+2] = temp;
+        facesDataLINE[count] =   Vertex( QVector3D( p1.x, p1.y, p1.z), QVector3D(0.0f, 0.0f, 1.0f), zeroVec );
+        facesDataLINE[count+1] = Vertex( QVector3D( p2.x, p2.y, p2.z), QVector3D(0.0f, 0.0f, 1.0f), zeroVec );
+        facesDataLINE[count+2] = Vertex( QVector3D( p3.x, p3.y, p3.z), QVector3D(0.0f, 0.0f, 1.0f), zeroVec );
 
-        facesDataLINE[count] =   Vertex( QVector3D( p1.x, p1.y, p1.z), QVector3D(0.0f, 1.0f, 1.0f) );
-        facesDataLINE[count+1] = Vertex( QVector3D( p2.x, p2.y, p2.z), QVector3D(0.0f, 1.0f, 1.0f) );
-        facesDataLINE[count+2] = Vertex( QVector3D( p3.x, p3.y, p3.z), QVector3D(0.0f, 1.0f, 1.0f) );
+        facesDataFILL[count] =   Vertex( QVector3D( p1.x, p1.y, p1.z), QVector3D(0.0f, 1.0f, 1.0f), temp );
+        facesDataFILL[count+1] = Vertex( QVector3D( p2.x, p2.y, p2.z), QVector3D(0.0f, 1.0f, 1.0f), temp );
+        facesDataFILL[count+2] = Vertex( QVector3D( p3.x, p3.y, p3.z), QVector3D(0.0f, 1.0f, 1.0f), temp );
 
-        facesDataFILL[count] =   Vertex( QVector3D( p1.x, p1.y, p1.z), QVector3D(0.0f, 0.0f, 1.0f) );
-        facesDataFILL[count+1] = Vertex( QVector3D( p2.x, p2.y, p2.z), QVector3D(0.0f, 0.0f, 1.0f) );
-        facesDataFILL[count+2] = Vertex( QVector3D( p3.x, p3.y, p3.z), QVector3D(0.0f, 0.0f, 1.0f) );
 
       count = count + 3;
     }
 
     count = 0;
 
-    for(vert = linesDataList.begin(); vert != linesDataList.end(); vert++){
+    for(vert = linesDataList.begin(); vert != linesDataList.end(); vert++)
         linesData[count++] = *vert;
-    }
+
 
     count = 0;
 
-    for(vert = pointsDataList.begin(); vert != pointsDataList.end(); vert++){
+    for(vert = pointsDataList.begin(); vert != pointsDataList.end(); vert++)
         pointsData[count++] = *vert;
-    }
 }
 
-void Window::update()
-{
-  // Schedule a redraw
-  QOpenGLWindow::update();
-}
-
-void Window::paintGL()
+void ObjectWindow::render()
 {
   // Clear
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
   m_modelView.setToIdentity();
+  m_modelView.lookAt(QVector3D(0,0,3),QVector3D(0,0,-1),QVector3D(0,1,0));
+
   m_modelView.translate(xTrans, yTrans, zTrans);
   m_modelView.rotate(-180.0f, 1, 0, 0);
   m_modelView.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
@@ -184,27 +218,30 @@ void Window::paintGL()
   m_modelView.rotate(zRot / 16.0f, 0, 0, 1);
   m_modelView.scale(scaleValue);
 
+  m_projection.setToIdentity();
+  m_projection.perspective(40, 4.0/3.0, 0.1, 100);
+
   // Render using our shader
   m_program->bind();
   {
-    m_program->setUniformValue("mvpMatrix",  m_modelView);
-
-    if(shadeMode == 1 || shadeMode == 3){
-        facesVAO1.bind();
-        facesVBO1.bind();
-        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(facesDataFILL) / sizeof(facesDataFILL[0]));
-        facesVBO1.release();
-        facesVAO1.release();
-    }
+    m_program->setUniformValue("mvpMatrix",  m_projection * m_modelView);
 
     if(shadeMode == 2 || shadeMode ==3){
         facesVAO2.bind();
         facesVBO2.bind();
-        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(facesDataLINE) / sizeof(facesDataLINE[0]));
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(facesDataFILL) / sizeof(facesDataFILL[0]));
         facesVBO2.release();
         facesVAO2.release();
+    }
+
+    if(shadeMode == 1 || shadeMode == 3){
+        facesVAO1.bind();
+        facesVBO1.bind();
+        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(facesDataLINE) / sizeof(facesDataLINE[0]));
+        facesVBO1.release();
+        facesVAO1.release();
     }
 
     pointsVAO.bind();
@@ -215,32 +252,10 @@ void Window::paintGL()
     linesVAO.bind();
     glDrawArrays(GL_LINE_STRIP, 0, sizeof(linesData) / sizeof(linesData[0]));
     linesVAO.release();
+
   }
   m_program->release();
-}
 
-void Window::resizeGL(int width, int height)
-{
-    m_projection.setToIdentity();
-    m_projection.perspective(45.0f, width / float(height), 0.0f, 5.0f);
-}
-
-
-void Window::teardownGL()
-{
-  // Actually destroy our OpenGL information
-  facesVAO1.destroy();
-  facesVBO1.destroy();
-
-  facesVAO2.destroy();
-  facesVBO2.destroy();
-
-  linesVAO.destroy();
-  linesVBO.destroy();
-
-  pointsVAO.destroy();
-  pointsVBO.destroy();
-  delete m_program;
 }
 
 static void qNormalizeAngle(int &angle)
@@ -251,13 +266,12 @@ static void qNormalizeAngle(int &angle)
         angle -= 360 * 16;
 }
 
-void Window::mousePressEvent(QMouseEvent *event)
+void ObjectWindow::mousePressEvent(QMouseEvent *event)
 {
     lastPos = event->pos();
 }
 
-
-void Window::keyPressEvent(QKeyEvent *event)
+void ObjectWindow::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
@@ -268,7 +282,7 @@ void Window::keyPressEvent(QKeyEvent *event)
     QWindow::keyPressEvent(event);
 }
 
-void Window::wheelEvent(QWheelEvent *event)
+void ObjectWindow::wheelEvent(QWheelEvent *event)
 {
     int orient = event->delta();
 
@@ -279,9 +293,11 @@ void Window::wheelEvent(QWheelEvent *event)
 
         if(scaleValue < 0.1)
             scaleValue = 0.1;
+
+        render();
 }
 
-void Window::mouseMoveEvent(QMouseEvent *event)
+void ObjectWindow::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
@@ -297,10 +313,10 @@ void Window::mouseMoveEvent(QMouseEvent *event)
     }
 
     lastPos = event->pos();
-    paintGL();
+    render();
 }
 
-void Window::xRotationChanged(int angle)
+void ObjectWindow::xRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != xRot) {
@@ -309,7 +325,7 @@ void Window::xRotationChanged(int angle)
     }
 }
 
-void Window::yRotationChanged(int angle)
+void ObjectWindow::yRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != yRot) {
@@ -318,7 +334,7 @@ void Window::yRotationChanged(int angle)
     }
 }
 
-void Window::zRotationChanged(int angle)
+void ObjectWindow::zRotationChanged(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != zRot) {
@@ -326,4 +342,3 @@ void Window::zRotationChanged(int angle)
         emit zRotationChanged(angle);
     }
 }
-

@@ -32,6 +32,8 @@ void ThreadGetData::inputFaces(list<Triangle> triList){
 
     for (tri = triList.begin(); tri != triList.end(); tri++){
             face.push_back(*tri);
+            vec4 p1,p2,p3;
+            tri->getVertice(p1,p2,p3);
     }
 }
 
@@ -53,6 +55,7 @@ void ThreadGetData::inputPoints(list<Vertex> pointList){
     }
 }
 
+
 // Input data from .smf file
 void ThreadGetData::inputFromSMF(string address){
        string line;
@@ -67,7 +70,6 @@ void ThreadGetData::inputFromSMF(string address){
        int numOfVert = atoi(lineSplit[1]);
        int numOfFace = atoi(lineSplit[2]);
 
-       // get vertices
        for (int i = 0;i < numOfVert;i++){
            getline(input,line);
            strcpy(line_, line.c_str());
@@ -77,7 +79,6 @@ void ThreadGetData::inputFromSMF(string address){
            vert[i][2] = atof(lineSplit[3]);
        }
 
-       // get all faces
        for (int i = 0;i < numOfFace;i++){
            getline(input,line);
            strcpy(line_, line.c_str());
@@ -85,6 +86,7 @@ void ThreadGetData::inputFromSMF(string address){
            int index0 = atoi(lineSplit[1]) - 1;
            int index1 = atoi(lineSplit[2]) - 1;
            int index2 = atoi(lineSplit[3]) - 1;
+
 
            vec4 p1 = vec4(vert[index0][0],vert[index0][1],vert[index0][2],1.0);
            vec4 p2 = vec4(vert[index1][0],vert[index1][1],vert[index1][2],1.0);
