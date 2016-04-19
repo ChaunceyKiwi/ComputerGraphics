@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     ThreadGetData threadGetData; //thread to get data
     threadGetData.start();
-    threadGetData.inputFromSMF("../smf/man.smf");
+    threadGetData.inputFromSMF("./smf/man.smf");
 
     /* faces import */
 //    vec4 p1 = vec4(-0.5, 0.0, 0.0, 1.0);
